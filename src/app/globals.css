@@ -136,3 +136,21 @@
     background-position: 0% 50%;
   }
 }
+
+/* Keyframes for button pulse animation */
+@keyframes button-pulse {
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Keyframes for marquee scroll animation (reversed) */
+@keyframes marquee {
+  0% { transform: translateX(-50%); } /* Start further left */
+  100% { transform: translateX(0); }   /* End at original position */
+}
+
+/* Apply the animation (faster) */
+.animate-marquee {
+  animation: marquee 20s linear infinite; /* Decreased duration */
+}

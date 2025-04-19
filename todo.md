@@ -51,7 +51,7 @@
 **Milestone 3: Runpod Serverless Endpoint (Stable Diffusion XL)**
 
 *   [x] Task 3.1: Identify Runpod endpoint details for **"1-Click Stable Diffusion XL" template** (or similar SDXL template).
-*   [x] Task 3.2: Ensure Runpod Serverless endpoint (ID: `uqaa8d5h9xqvvy`) is deployed/running. Understand its **input schema (`{ "input": { "prompt": "..." } }`)** and **output schema** (image URL path is `output.image_url`).
+*   [x] Task 3.2: Ensure Runpod Serverless endpoint (ID: `uqaa8d5t9xqvy7`) is deployed/running. Understand its **input schema (`{ "input": { "prompt": "..." } }`)** and **output schema** (image URL path is `output.image_url`).
 *   [x] Task 3.3: Ensure Runpod API Key is correctly set up in `.env.local` as `NEXT_PUBLIC_RUNPOD_API_KEY`.
 *   [x] **Test Milestone 3:** Test endpoint via Runpod UI/`curl`. Send sample prompt (`{ "input": { "prompt": "a cat astronaut" } }`), verify response structure contains image URL/data. **Note the exact path to the image URL.**
 *   [ ] `git commit -m "feat(backend): Configure Runpod Serverless endpoint for Stable Diffusion XL"`
@@ -60,27 +60,15 @@
 
 **Milestone 4: Frontend <> Backend Integration (Client-Side Fetch)**
 
-*   [ ] Task 4.1: Implement `handleGenerate` function in `src/app/generate/page.tsx` using client-side `fetch` to call **Runpod `/runsync` endpoint (`https://api.runpod.ai/v2/uqaa8d5h9xqvvy/runsync`)**.
-*   [ ] Task 4.2: Ensure `handleGenerate` uses the correct `prompt` state and retrieves `process.env.NEXT_PUBLIC_RUNPOD_API_KEY` for the `Authorization: Bearer ...` header. Set `Content-Type: application/json`.
-*   [ ] Task 4.3: Implement loading state management (`isLoading`, disable button, show `Skeleton`).
-*   [ ] Task 4.4: Parse the `/runsync` JSON response, **extract image URL (from path noted in M3 test)**, update `imageUrl` state.
-*   [ ] Task 4.5: Handle potential errors from the `fetch` or Runpod response (update `error` state, show message in UI).
-*   [ ] **Test Milestone 4:** Enter prompt, click generate. Verify loading state shows. Verify image appears on success or error message on failure. Check browser console/network tab for request/response details.
-*   [ ] `git commit -m "feat: Integrate frontend generation UI with Runpod API (client-side runsync)"`
+*   [x] Task 4.1: Implement `handleGenerate` function in `src/app/generate/page.tsx` using client-side `fetch` to call **Runpod `/runsync` endpoint (`https://api.runpod.ai/v2/uqaa8d5t9xqvy7/runsync`)**.
+*   [x] Task 4.2: Ensure `handleGenerate` uses the correct `prompt` state and retrieves `process.env.NEXT_PUBLIC_RUNPOD_API_KEY` for the `Authorization: Bearer ...` header. Set `Content-Type: application/json`.
+*   [x] Task 4.3: Implement loading state management (`isLoading`, disable button, show `Skeleton`).
+*   [x] Task 4.4: Parse the `/runsync` JSON response, **extract image URL (from path noted in M3 test)**, update `imageUrl` state.
+*   [x] Task 4.5: Handle potential errors from the `fetch` or Runpod response (update `error` state, show message in UI).
+*   [x] **Test Milestone 4:** Enter prompt, click generate. Verify loading state shows. Verify image appears on success or error message on failure. Check browser console/network tab for request/response details.
+*   [x] `git commit -m "feat: Integrate frontend generation UI with Runpod API (client-side runsync)"`
 
 ---
-
-**(Contingency) Milestone 4B: Mock Backend API**
-*(Use if Milestone 3 or 4 hits major roadblocks)*
-
-*   [ ] Task 4B.1: Create mock API function simulating delay (`setTimeout`) and returning a static image URL.
-*   [ ] Task 4B.2: Connect "Generate" button `onClick` to this mock function instead of the real API call.
-*   [ ] Task 4B.3: Display static image result in the designated area.
-*   [ ] **Test Milestone 4B:** Verify clicking "Generate" shows loading, then displays the static image.
-*   [ ] `git commit -m "feat: Implement mocked backend API for demo"`
-
----
-
 **Milestone 5: Final Polish & Demo Prep**
 
 *   [ ] Task 5.1: Review overall UI/UX. Apply minor Tailwind CSS fixes for alignment, spacing, colors.
@@ -91,5 +79,7 @@
 *   [ ] Task 5.3 (Stretch): Implement interactive cursor animation effect on landing page.
 *   [ ] Task 5.4 (Stretch): Implement multi-time-of-day generation (morning, midday, dusk, night) from a single prompt.
 *   [ ] Task 5.5 (Stretch): Add support for other SDXL parameters (negative prompt, width, height) to the input payload if time permits.
+*   [ ] Task 5.6 (Stretch): Implement dynamic text resizing for prompt input.
+*   [ ] Task 5.7 (Stretch): Implement local gallery storage and modal view/download for generated images.
 *   [ ] **Test Milestone 5:** Perform full end-to-end test of the intended demo flow (Landing -> Generate -> Result). Check on target demo screen size if possible.
 *   [ ] `git commit -m "chore: Final polish and testing before demo"`

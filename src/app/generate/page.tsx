@@ -5,6 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton"; // For loading state
 
+const RUNPOD_ENDPOINT_ID = "uqaa8d5t9xqvy7";
+const RUNPOD_API_KEY = process.env.NEXT_PUBLIC_RUNPOD_API_KEY;
+
+// Define desired dimensions
+const WALLPAPER_WIDTH = 1024;
+const WALLPAPER_HEIGHT = 576; // Approx 16:9 aspect ratio
+
+// Key for local storage
+const GALLERY_STORAGE_KEY = 'genwallGallery';
+
+// Interface for gallery item
+interface GalleryItem {
+  id: string;
+  prompt: string;
+  imageUrl: string;
+  timestamp: number;
+}
+
 export default function GeneratePage() {
   const [prompt, setPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -12,73 +30,134 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
+    if (!prompt.trim()) return; // Prevent empty prompts
+    if (!RUNPOD_API_KEY) {
+      setError("API Key not configured. Please set NEXT_PUBLIC_RUNPOD_API_KEY.");
+      return;
+    }
+
     setIsLoading(true);
     setImageUrl(null);
     setError(null);
-    // TODO: Implement API call in Milestone 4
-    console.log("Generating image for prompt:", prompt);
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000)); 
-    // Simulate success/error - replace with actual logic later
-    if (Math.random() > 0.2) {
-      // Simulate success
-      setImageUrl("/placeholder-image.jpg"); // Replace with actual URL from API
-    } else {
-      // Simulate error
-      setError("Failed to generate image. Please try again.");
+
+    const endpointUrl = `https://api.runpod.ai/v2/${RUNPOD_ENDPOINT_ID}/runsync`;
+
+    const payload = {
+      input: {
+        prompt: prompt,
+        width: WALLPAPER_WIDTH,
+        height: WALLPAPER_HEIGHT,
+        // num_inference_steps: 25, // Example other param
+      }
+    };
+
+    try {
+      const response = await fetch(endpointUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${RUNPOD_API_KEY}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        // Read the body as text first, only once
+        const errorText = await response.text();
+        let errorDetail = errorText; // Default to the raw text
+
+        // Try to parse it as JSON to get a more specific message
+        try {
+          const errJson = JSON.parse(errorText);
+          // Use specific message if available, otherwise stringify the whole JSON
+          errorDetail = errJson.error?.message || JSON.stringify(errJson);
+        } catch (parseError) {
+          // If JSON parsing fails, errorDetail remains the raw text
+          console.warn("Could not parse error response as JSON:", errorText);
+        }
+        throw new Error(`API request failed with status ${response.status}: ${errorDetail}`);
+      }
+
+      const result = await response.json();
+
+      // Extract image URL based on confirmed path
+      const generatedImageUrl = result?.output?.image_url;
+
+      if (generatedImageUrl) {
+        setImageUrl(generatedImageUrl);
+
+        // --- Save to Local Storage --- 
+        try {
+          const newItem: GalleryItem = {
+            id: crypto.randomUUID(), // Simple unique ID
+            prompt: prompt,
+            imageUrl: generatedImageUrl,
+            timestamp: Date.now()
+          };
+          const existingItemsRaw = localStorage.getItem(GALLERY_STORAGE_KEY);
+          const existingItems: GalleryItem[] = existingItemsRaw ? JSON.parse(existingItemsRaw) : [];
+          // Add new item to the beginning and limit gallery size (e.g., to 20)
+          const updatedItems = [newItem, ...existingItems].slice(0, 20);
+          localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(updatedItems));
+          console.log('Saved to gallery:', newItem);
+        } catch (storageError) {
+          console.error("Failed to save to local storage:", storageError);
+          // Non-critical error, maybe show a subtle warning? For now, just log it.
+        }
+        // --- End Save --- 
+
+      } else {
+        console.error("API response missing image URL:", result);
+        throw new Error("Generation succeeded, but no image URL found in the response.");
+      }
+
+    } catch (err: any) {
+      console.error("Error calling Runpod API:", err);
+      setError(err.message || "An unexpected error occurred during generation.");
+      setImageUrl(null); // Clear any previous image on error
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
-    // Main container using flex row, ensuring it fills height below header
-    <main className="flex flex-row h-[calc(100vh-theme(space.16))] md:h-[calc(100vh-theme(space.20))] overflow-hidden"> {/* Use explicit height and overflow hidden */}
-      {/* Left Column: Chat Sidebar */}
-      {/* Fixed width, full height, flex column, darker distinct background */}
-      <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col h-full p-4 md:p-6 bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
-        {/* Chat history area - takes up remaining space */}
-        <div className="flex-grow overflow-y-auto mb-4 rounded-md bg-gray-200 dark:bg-gray-800/50 p-2">
-          <p className="text-sm text-gray-500 dark:text-gray-400 italic">Chat history placeholder...</p>
-          {/* Add more placeholder lines to simulate content */}
-          <div className="space-y-2 mt-2">
-             <Skeleton className="h-4 w-3/4" />
-             <Skeleton className="h-4 w-1/2" />
-             <Skeleton className="h-4 w-2/3" />
-          </div>
-        </div>
-        {/* Input Area fixed at the bottom */}
-        <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"> {/* Added border top */}
-          <Textarea
-            placeholder="Enter your prompt..."
-            value={prompt}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
-            rows={3}
-            className="resize-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md p-2 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors duration-200"
-            disabled={isLoading}
-          />
-          <Button 
-            onClick={handleGenerate} 
-            disabled={isLoading || !prompt.trim()} 
-            size="lg" 
-            // Apply gradient and animation classes, remove conflicting bg/hover, ensure text is white
-            className="font-semibold w-full text-white bg-gradient-to-br from-pink-400 via-purple-500 via-indigo-500 to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
-            style={{
-              backgroundSize: '300% 300%',
-              animation: 'gradient-animation 20s ease infinite'
-            }} // Apply size and animation via style prop as Tailwind classes might not exist
-          >
-            {isLoading ? 'Generating...' : 'Generate'}
-          </Button>
-        </div>
+    <main className="flex flex-row h-[calc(100vh-theme(space.16))] md:h-[calc(100vh-theme(space.20))] overflow-hidden">
+      {/* Left Column: Input Area Only */}
+      {/* Adjusted flex structure */}
+      <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col h-full p-4 md:p-6 bg-white border-r border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-700 mb-2">Enter Prompt</h2> {/* Slightly more margin */}
+        {/* Textarea now grows, Button stays at bottom */}
+        <Textarea
+          placeholder="A serene landscape..."
+          value={prompt}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
+          // Removed rows, added flex-grow
+          className="flex-grow resize-none border border-gray-300 bg-white rounded-md p-3 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors duration-200 mb-3" // Added bottom margin
+          disabled={isLoading}
+        />
+        <Button 
+          onClick={handleGenerate} 
+          disabled={isLoading || !prompt.trim()} 
+          size="lg" 
+          className="font-semibold w-full text-white bg-gradient-to-br from-pink-400 via-purple-500 via-indigo-500 to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:opacity-90 mt-auto" // Added mt-auto to push button down
+          style={{
+            backgroundSize: '300% 300%',
+            animation: 'gradient-animation 20s ease infinite'
+          }}
+        >
+          {isLoading ? 'Generating...' : 'Generate'}
+        </Button>
       </div>
 
-      {/* Right Column: Results Area with White Background */}
-      {/* Takes remaining width, full height, white background, centered content */}
-      <div className="w-full md:w-2/3 lg:w-3/4 flex items-center justify-center p-4 md:p-8 bg-white dark:bg-gray-100 overflow-y-auto"> {/* White background */}
-        {/* Result container with aspect ratio */}
-        <div className="aspect-video rounded-lg overflow-hidden flex items-center justify-center bg-gray-200 dark:bg-gray-800 relative w-full max-w-5xl shadow-lg"> {/* Adjusted bg for contrast, added shadow */}
+      {/* Right Column: Results Area */}
+      <div className="w-full md:w-2/3 lg:w-3/4 flex items-center justify-center p-4 md:p-8 bg-white overflow-y-auto">
+        <div className="aspect-video rounded-lg overflow-hidden flex items-center justify-center bg-gray-100 relative w-full max-w-5xl shadow-inner">
+          {/* Make Skeleton more visible */}
           {isLoading && (
-            <Skeleton className="absolute inset-0 w-full h-full bg-gray-300 dark:bg-gray-700" />
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-200/70 backdrop-blur-sm z-10">
+              <Skeleton className="h-1/2 w-1/2 bg-gray-400/50 rounded-lg" />
+              <p className="absolute bottom-4 text-gray-600 animate-pulse">Generating...</p>
+            </div>
           )}
           {!isLoading && imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -89,12 +168,12 @@ export default function GeneratePage() {
             />
           )}
           {!isLoading && error && (
-            <p className="text-red-600 dark:text-red-400 text-center p-4 font-medium">{error}</p> // Adjusted error color for white bg
+            <p className="text-red-600 text-center p-4 font-medium">{error}</p>
           )}
           {!isLoading && !imageUrl && !error && (
-            <p className="text-gray-500 dark:text-gray-400 text-center p-4 italic">
+            <p className="text-gray-500 text-center p-4 italic">
               Your generated wallpaper will appear here.
-            </p> // Adjusted placeholder color for white bg
+            </p>
           )}
         </div>
       </div>
