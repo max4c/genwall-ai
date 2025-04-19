@@ -75,11 +75,11 @@
     *   Refine header size.
     *   Adjust hero text color for readability.
     *   Enhance background gradient animation.
-*   [ ] Task 5.2: Add basic error handling/user feedback if missing.
-*   [ ] Task 5.3 (Stretch): Implement interactive cursor animation effect on landing page.
+    *   Set generate page prompt input font size to text-base.
+*   [x] Task 5.2: Add basic error handling/user feedback if missing.
+*   [x] Task 5.3 (Stretch): Implement interactive cursor animation effect on landing page.
 *   [ ] Task 5.4 (Stretch): Implement multi-time-of-day generation (morning, midday, dusk, night) from a single prompt.
 *   [ ] Task 5.5 (Stretch): Add support for other SDXL parameters (negative prompt, width, height) to the input payload if time permits.
-*   [ ] Task 5.6 (Stretch): Implement dynamic text resizing for prompt input.
-*   [ ] Task 5.7 (Stretch): Implement local gallery storage and modal view/download for generated images.
+*   [x] Task 5.7 (Stretch): Implement local gallery storage and modal view/download for generated images.
 *   [ ] **Test Milestone 5:** Perform full end-to-end test of the intended demo flow (Landing -> Generate -> Result). Check on target demo screen size if possible.
 *   [ ] `git commit -m "chore: Final polish and testing before demo"`

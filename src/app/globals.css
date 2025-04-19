@@ -154,3 +154,14 @@
 .animate-marquee {
   animation: marquee 20s linear infinite; /* Decreased duration */
 }
+
+/* Keyframes for cursor shimmer animation */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* Apply the animation (maybe slightly faster) */
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}

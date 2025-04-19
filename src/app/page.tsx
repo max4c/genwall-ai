@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,36 @@ interface GalleryItem {
 export default function Home() {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const effectRef = useRef<HTMLDivElement>(null);
+
+  // Effect to track mouse movement and update position directly
+  useEffect(() => {
+    let animationFrameId: number | null = null;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      // Cancel previous frame request if it exists
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      // Request animation frame to update position
+      animationFrameId = requestAnimationFrame(() => {
+        if (effectRef.current) {
+          effectRef.current.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    // Cleanup listener and animation frame on component unmount
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []); // Empty dependency array, runs only on mount and unmount
 
   // Load items from local storage on component mount
   useEffect(() => {
@@ -48,9 +78,20 @@ export default function Home() {
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <>
-      {/* Marquee Section - Full Width */}
-      <section className="w-full overflow-hidden md:py-3">
+    <div className="relative min-h-screen overflow-hidden"> {/* Added overflow-hidden */}
+      {/* Modified Cursor Effect */}
+      <div 
+        ref={effectRef} 
+        className="pointer-events-none absolute -inset-px z-30 transform-gpu"
+      >
+         {/* Adjusted vertical translation to move it higher (-translate-y-full) */}
+        <div 
+           className="h-24 w-24 -translate-x-1/2 -translate-y-full rounded-full bg-gradient-to-br from-yellow-300 via-orange-400 to-amber-500 opacity-70 blur-xl animate-shimmer" 
+         />
+      </div>
+
+      {/* Content needs relative positioning and z-index to appear above the effect */}
+      <section className="relative z-10 w-full overflow-hidden py-2 md:py-3">
         <div className="flex whitespace-nowrap animate-marquee"> 
           {[...Array(8)].map((_, i) => ( // Increased repetitions slightly for wider screens
             <span key={i} className="text-6xl md:text-7xl lg:text-8xl font-extrabold mx-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-300 py-2">
@@ -60,8 +101,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Content Section - Constrained Width */}
-      <main className="container mx-auto px-4 pt-4 md:pt-6 lg:pt-8 pb-12 md:pb-16 lg:pb-20">
+      <main className="relative z-10 container mx-auto px-4 pt-4 md:pt-6 lg:pt-8 pb-12 md:pb-16 lg:pb-20">
         {/* Hero Section (Text + Button Only) */}
         <section className="text-center mb-16 md:mb-20 lg:mb-24 flex flex-col items-center">
           {/* Title removed, it's now the marquee */}
@@ -82,7 +122,7 @@ export default function Home() {
         </section>
 
         {/* Gallery Section with Modals */}
-        <section>
+        <section className="relative z-10"> {/* Ensure gallery is above spotlight if needed */}
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white">
             Gallery Showcase
           </h2>
@@ -93,7 +133,7 @@ export default function Home() {
                   <DialogTrigger key={item.id} asChild onClick={() => setSelectedItem(item)}>
                     <Card className="overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer">
                       <CardHeader>
-                        <CardTitle className="text-gray-900 truncate">Prompt Snippet</CardTitle>
+                        <CardTitle className="text-gray-900 truncate">Previous Prompt</CardTitle>
                         <CardDescription className="text-gray-600 line-clamp-2">{item.prompt}</CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -153,6 +193,6 @@ export default function Home() {
           )}
         </section>
       </main>
-    </>
+    </div>
   );
 }

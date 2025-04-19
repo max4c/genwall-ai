@@ -1,6 +1,6 @@
 "use client"; // Add this for client-side interactivity later
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton"; // For loading state
@@ -125,14 +125,14 @@ export default function GeneratePage() {
       {/* Left Column: Input Area Only */}
       {/* Adjusted flex structure */}
       <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col h-full p-4 md:p-6 bg-white border-r border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Enter Prompt</h2> {/* Slightly more margin */}
+        <h1 className="text-4xl md:text-3xl font-semibold text-gray-700 mb-4 pt-8 pb-2">Enter Prompt</h1> 
         {/* Textarea now grows, Button stays at bottom */}
         <Textarea
           placeholder="A serene landscape..."
           value={prompt}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
-          // Removed rows, added flex-grow
-          className="flex-grow resize-none border border-gray-300 bg-white rounded-md p-3 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors duration-200 mb-3" // Added bottom margin
+          style={{ fontSize: '24px' }}
+          className="flex-grow resize-none border border-gray-300 bg-white rounded-md p-3 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors duration-200 mb-3"
           disabled={isLoading}
         />
         <Button 
