@@ -27,12 +27,12 @@
 
 **Milestone 2: Generation Page UI (`src/app/generate/page.tsx`)**
 
-*   [ ] Task 2.1: Create `/generate` route and page file using App Router.
-*   [ ] Task 2.2: Add prompt text area (Shadcn `Textarea` or `Input`).
-*   [ ] Task 2.3: Add "Generate" button (Shadcn `Button`).
-*   [ ] Task 2.4: Add designated area for results/status display (e.g., empty `div`, Shadcn `Skeleton` for loading).
-*   [ ] **Test Milestone 2:** Verify generation page elements render. Check button/input interactivity.
-*   [ ] `git commit -m "feat: Implement generation page UI using Shadcn"`
+*   [x] Task 2.1: Create `/generate` route and page file using App Router.
+*   [x] Task 2.2: Add prompt text area (Shadcn `Textarea` or `Input`).
+*   [x] Task 2.3: Add "Generate" button (Shadcn `Button`).
+*   [x] Task 2.4: Add designated area for results/status display (e.g., empty `div`, Shadcn `Skeleton` for loading).
+*   [x] **Test Milestone 2:** Verify generation page elements render. Check button/input interactivity.
+*   [x] `git commit -m "feat: Implement generation page UI using Shadcn"`
 
 ---
 
@@ -77,5 +77,6 @@
     *   Enhance background gradient animation.
 *   [ ] Task 5.2: Add basic error handling/user feedback if missing.
 *   [ ] Task 5.3 (Stretch): Implement interactive cursor animation effect on landing page.
+*   [ ] Task 5.4 (Stretch): Implement multi-time-of-day generation (morning, midday, dusk, night) from a single prompt.
 *   [ ] **Test Milestone 5:** Perform full end-to-end test of the intended demo flow (Landing -> Generate -> Result). Check on target demo screen size if possible.
 *   [ ] `git commit -m "chore: Final polish and testing before demo"`
