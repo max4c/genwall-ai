@@ -113,16 +113,16 @@ export default function Home() {
                 ))}
               </div>
 
-              <DialogContent className="sm:max-w-[80vw] max-h-[90vh] flex flex-col">
+              <DialogContent className="sm:max-w-[80vw] max-h-[90vh] flex flex-col bg-white text-gray-900">
                 {selectedItem && (
                   <>
                     <DialogHeader>
-                      <DialogTitle>Generated Wallpaper</DialogTitle>
-                      <DialogDescription className="py-2">
-                        <span className="font-semibold">Prompt:</span> {selectedItem.prompt}
+                      <DialogTitle className="text-gray-900">Generated Wallpaper</DialogTitle>
+                      <DialogDescription className="py-2 text-gray-600">
+                        <span className="font-semibold text-gray-800">Prompt:</span> {selectedItem.prompt}
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-grow overflow-auto my-4">
+                    <div className="flex-grow overflow-auto my-4 p-4 bg-gray-100 rounded">
                       <Image 
                         src={selectedItem.imageUrl}
                         alt={selectedItem.prompt}
@@ -133,7 +133,7 @@ export default function Home() {
                       />
                     </div>
                     <DialogFooter>
-                      <Button asChild variant="secondary">
+                      <Button asChild variant="secondary" className="bg-gray-200 text-gray-800 hover:bg-gray-300">
                         <a 
                           href={selectedItem.imageUrl} 
                           download={`genwall-${selectedItem.id}.png`}
